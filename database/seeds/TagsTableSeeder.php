@@ -13,7 +13,7 @@ class TagsTableSeeder extends Seeder
      */
     public function run()
     {
-        $tags = ['Frontend', 'Backend', 'Full Stack', 'DevOps'];
+        $tags = ['html', 'css', 'php', 'js'];
 
         foreach($tags as $tag) {
             $newTag = new Tag();

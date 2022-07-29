@@ -7,6 +7,7 @@ use Illuminate\Support\Str;
 use App\Post;
 use Illuminate\Http\Request;
 use App\Category;
+use App\Tag;
 
 class PostController extends Controller
 {
@@ -36,7 +37,8 @@ class PostController extends Controller
     public function create()
     {
         $categories = Category::all();
-        return view('admin.posts.create', compact('categories'));
+        $tags = Tag::all();
+        return view('admin.posts.create', compact('categories','tags'));
     }
 
     /**
@@ -54,6 +56,10 @@ class PostController extends Controller
         $newPost->slug = $this->getSlug($data['title']);
         $newPost->published = isset($data['published']);
         $newPost->save();
+
+        if(isset($data['tags'])) {
+            $newPost->tags()->sync($data['tags']);
+        }
 
         return redirect()->route('admin.posts.show', $newPost->id);
     }
@@ -78,7 +84,11 @@ class PostController extends Controller
     public function edit(Post $post)
     {
         $categories = Category::all();
-        return view('admin.posts.edit', compact('post','categories'));
+        $tags = Tag::all();
+        $postTags = $post->tags->map(function ($tag) {
+            return $tag->id;
+        })->toArray();
+        return view('admin.posts.edit', compact('post','categories','tags','postTags'));
     }
 
     /**
@@ -98,6 +108,8 @@ class PostController extends Controller
         $post->fill($data);
         $post->published = isset($data['published']);
         $post->save();
+        $tags = isset($data['tags']) ? $data['tags'] : [];
+        $post->tags()->sync($tags);
         return redirect()->route('admin.posts.show', $post->id);
     }
 
